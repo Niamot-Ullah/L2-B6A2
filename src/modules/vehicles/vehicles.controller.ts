@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { pool } from "../../config/db";
 import { vehicleService } from "./vehicles.service";
 
 const createVehicle =async (req: Request, res: Response) => {

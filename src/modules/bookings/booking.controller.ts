@@ -73,13 +73,20 @@ const createBooking =async (req: Request, res: Response) => {
 }
 
 const getBooking = async (req: Request, res: Response) => {
-    const { role, customer_id } = req.query;
 
   try {
-    const result = await bookingService.getBookingDB()
+    const result = await bookingService.getBookingDB({ user: req.user })
+
+    if (result.rows.length === 0) {
+      res.status(200).json({
+        success: true,
+        message: "No bookings found",
+        data: [],
+      });
+    }
     res.status(200).json({
       success: true,
-      message: "data fetched successfully",
+      message: "Bookings retrieved successfully",
       data: result.rows,
     });
   } catch (error: any) {
@@ -90,37 +97,15 @@ const getBooking = async (req: Request, res: Response) => {
   }
 }
 
-const getSingleBooking = async (req: Request, res: Response) => {
-  const id = req.params.bookingId;
-  try {
-    const result = await bookingService.getSingleBookingDB(id)
 
-    if (result.rows.length === 0) {
-      res.status(404).json({
-        success: false,
-        message: "bookings not found",
-      });
-    } else {
-      res.status(200).json({
-        success: true,
-        message: "data fetched successfully",
-        data: result.rows,
-      });
-    }
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-}
 
 const updateBooking = async (req: Request, res: Response) => {
-  const {action,role} = req.body;
+  const {status} = req.body;
+  const role = req.user?.role
   const id = req.params.bookingId;
+  console.log(status,role);
 
   try {
-
     const bookingResult = await bookingService.updateBookingDB(id)
 
     if(bookingResult.rows.length===0){
@@ -131,14 +116,13 @@ const updateBooking = async (req: Request, res: Response) => {
     }
 
     const booking = bookingResult.rows[0]
-    // console.log(booking);
     const today:any = new Date().toISOString().split('T')[0]
 
     // prevent multiple updates
     if (booking.status === "returned" || booking.status === "cancelled") {
       return res.status(400).json({
         success: false,
-        message: "Booking already completed or cancelled",
+        message: "Booking already cancelled",
       });
     }
 
@@ -161,7 +145,7 @@ const updateBooking = async (req: Request, res: Response) => {
     }
 
     //customer cancel booking
-    if(role==='customer' && action==='cancelled'){
+    if(role==='customer' && status==='cancelled'){
 
         if(today >=booking.rent_start_date){
           return res.status(400).json({
@@ -186,7 +170,7 @@ const updateBooking = async (req: Request, res: Response) => {
     }
    
     //admin returned
-    if(role==='admin'&& action==='returned'){
+    if(role==='admin'&& status==='returned'){
         await pool.query(
             `UPDATE bookings SET status='returned' WHERE id=$1`,[id]
         )
@@ -224,6 +208,6 @@ const updateBooking = async (req: Request, res: Response) => {
 export const bookingControllers = {
     createBooking,
     getBooking,
-    getSingleBooking,
+  
     updateBooking
 }

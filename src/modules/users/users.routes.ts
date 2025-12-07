@@ -1,18 +1,15 @@
 import express, { Request, Response } from "express"
-import { pool } from "../../config/db";
 import { userControllers } from "./users.controller";
+import auth from './../../middleware/auth';
+import { UserRole } from "../../types/auth";
 
 const router = express.Router();
 
-router.post("/",userControllers.createUser)
 
-router.get("/",userControllers.getUser)
-//single user
-router.get("/:userId",userControllers.getSingleUser)
 
-router.put("/:userId",userControllers.UpdateUser)
-
-router.delete("/:userId",userControllers.deleteUser)
+router.get("/",auth(UserRole.Admin),userControllers.getUser)
+router.put("/:userId",auth(UserRole.Admin,UserRole.Customer),userControllers.UpdateUser)
+router.delete("/:userId",auth(UserRole.Admin),userControllers.deleteUser)
 
 
 
