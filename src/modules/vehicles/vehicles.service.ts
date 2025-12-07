@@ -26,6 +26,7 @@ const updateVehicle = async(vehicle_name:string, type:string, registration_numbe
 }
 
 const deleteVehicle = async(id:any)=>{
+
     const result = await pool.query(`DELETE FROM vehicles WHERE id=$1`, [id]);
     return result
 }

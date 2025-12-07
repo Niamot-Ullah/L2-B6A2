@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { vehicleService } from "./vehicles.service";
+import { pool } from "../../config/db";
 
 const createVehicle =async (req: Request, res: Response) => {
   const {vehicle_name,type,registration_number,daily_rent_price,availability_status} = req.body;
@@ -123,8 +124,15 @@ const deleteVehicle = async (req: Request, res: Response) => {
   const id = req.params.vehicleId;
   try {
 
-    const result = await vehicleService.deleteVehicle(id)
+    const bookingResult = await pool.query(`SELECT * FROM bookings WHERE vehicle_id = $1 AND status = 'active'`, [id]);
+    if (bookingResult.rows.length > 0) {
+        return res.status(404).json({
+        success: false,
+        message: "Vehicle has active bookings",
+      }); 
+    }
 
+    const result = await vehicleService.deleteVehicle(id)
     if (result.rowCount === 0) {
       res.status(404).json({
         success: false,
