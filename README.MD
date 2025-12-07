@@ -45,14 +45,27 @@ This project was developed as an academic assignment, following role-based acces
 ## 🏗 Project Structure
 
 src/
-│
-├── app.ts # Express app configuration
-├── server.ts # 
-├── config/ # Environment & database config
-├── middleware/ # Auth, logger, error handlers
+├── app.ts                 # Express app configuration
+├── server.ts              # Local server entry (development only)
+├── config/
+│   ├── index.ts           # Environment config
+│   └── db.ts              # PostgreSQL connection
+├── middleware/
+│   ├── auth.ts            # Auth middleware
+│   ├── logger.ts          # Logger middleware
+│   └── errorHandler.ts    # Global error handler
 ├── modules/
-│ ├── auth/ # Authentication routes & logic
-│ ├── users/ # User management
-│ ├── vehicles/ # Vehicle CRUD
-│ └── bookings/ # Booking logic
+│   ├── auth/
+│   │   ├── auth.routes.ts
+│   │   └── auth.controller.ts
+│   ├── users/
+│   │   ├── users.routes.ts
+│   │   └── users.controller.ts
+│   ├── vehicles/
+│   │   ├── vehicles.routes.ts
+│   │   └── vehicles.controller.ts
+│   └── bookings/
+│       ├── bookings.routes.ts
+│       └── bookings.controller.ts
 │
+dist/                      # Compiled JavaScript output
